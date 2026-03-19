@@ -5,10 +5,10 @@ import os
 
 app = Flask(__name__)
 DATA_FILE = 'dochazka.csv'
-USERS_FILE = 'uzivatele.csv'  # Nový soubor pro naši databázi lidí
+USERS_FILE = 'uzivatele.csv'
 
 
-# Pomocná funkce: Načte všechny uživatele ze souboru do slovníku
+
 def nacti_uzivatele():
     uzivatele = {}
     if os.path.exists(USERS_FILE):
@@ -31,7 +31,7 @@ def zapis_do_csv(cip, jmeno, akce):
 def index():
     zaznamy = []
     pritomni = {}
-    uzivatele = nacti_uzivatele()  # Načteme aktuální seznam lidí
+    uzivatele = nacti_uzivatele()
 
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, mode='r', encoding='utf-8') as f:
@@ -55,7 +55,6 @@ def pipnuti():
     kod_cipu = request.form.get('cip_id').strip()
     uzivatele = nacti_uzivatele()
 
-    # Pokud čip není v databázi, ignorujeme
     if not kod_cipu or kod_cipu not in uzivatele:
         return redirect('/')
 
@@ -74,15 +73,12 @@ def pipnuti():
     return redirect('/')
 
 
-# --- NOVÉ FUNKCE PRO SPRÁVU UŽIVATELŮ ---
-
 @app.route('/pridat_uzivatele', methods=['POST'])
 def pridat_uzivatele():
     jmeno = request.form.get('jmeno').strip()
     cip = request.form.get('novy_cip').strip()
 
     if jmeno and cip:
-        # Připíšeme nového člověka do souboru uzivatele.csv
         with open(USERS_FILE, mode='a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow([cip, jmeno])
@@ -96,24 +92,21 @@ def smazat_uzivatele():
     uzivatele = nacti_uzivatele()
 
     if cip_k_vymazani in uzivatele:
-        # 1. Smažeme ho ze seznamu uživatelů
+
         del uzivatele[cip_k_vymazani]
         with open(USERS_FILE, mode='w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             for cip, jmeno in uzivatele.items():
                 writer.writerow([cip, jmeno])
 
-        # 2. PROMAZÁNÍ HISTORIE: Smažeme všechna jeho pípnutí z dochazky
         if os.path.exists(DATA_FILE):
             zbyle_zaznamy = []
             with open(DATA_FILE, mode='r', encoding='utf-8') as f:
                 radky = list(csv.reader(f))
                 for radek in radky:
-                    # Pokud řádek patří někomu jinému (nebo je to chyba), necháme si ho
                     if len(radek) >= 4 and radek[1] != cip_k_vymazani:
                         zbyle_zaznamy.append(radek)
 
-            # Zapíšeme zpět jen historii ostatních lidí
             with open(DATA_FILE, mode='w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 for radek in zbyle_zaznamy:

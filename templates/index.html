@@ -117,7 +117,7 @@
             }
         });
 
-        // CHYTRÝ KURZOR: Vrátí se do hlavního pípátka JEN KDYŽ neklikáš do jiného políčka!
+       
         document.addEventListener('click', (e) => {
             if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
                 inputField.focus();
@@ -138,13 +138,13 @@
                 document.getElementById('delete-form').submit();
             }
         }
-        // Zastavení automatického odeslání při skenování nového čipu
+
         const novyCipInput = document.getElementById('novy_cip_input');
         if (novyCipInput) {
             novyCipInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
-                    e.preventDefault(); // Zabrání okamžitému odeslání
-                    document.getElementById('btn_pridat').focus(); // Přesune kurzor na tlačítko
+                    e.preventDefault();
+                    document.getElementById('btn_pridat').focus(); 
                 }
             });
         }
